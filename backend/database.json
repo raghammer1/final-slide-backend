@@ -1,0 +1,42 @@
+{
+  "admins": {
+    "ragh@g.com": {
+      "name": "erwerwerewr",
+      "password": "raghu222",
+      "store": {
+        "presentations": [
+          {
+            "id": "078de0e9-0691-42e5-9608-a65ec927bc50",
+            "name": "dsfdf",
+            "thumbnail": "",
+            "description": "sdfsf",
+            "slides": [
+              {
+                "elements": [
+                  {
+                    "1725190419100": [
+                      {
+                        "id": "19ea565e-5a0c-4248-89ca-5f37d3ae5e93",
+                        "type": "textarea",
+                        "text": "sfsdf",
+                        "top": "22.75",
+                        "left": "18",
+                        "height": "50",
+                        "width": "50",
+                        "fontSize": "1em",
+                        "color": "#000",
+                        "fontFamily": "Arial"
+                      }
+                    ]
+                  }
+                ],
+                "id": "76b51909-dd50-4968-a9b4-a5d5206ebef2",
+                "slideNumber": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
