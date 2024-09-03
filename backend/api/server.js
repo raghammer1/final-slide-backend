@@ -646,7 +646,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { InputError, AccessError } from './error';
-import swaggerDocument from './swagger.json';
+import swaggerDocument from '../swagger.json';
 import {
   getEmailFromAuthorization,
   login,
