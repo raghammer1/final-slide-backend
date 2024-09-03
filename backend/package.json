@@ -2,11 +2,11 @@
   "name": "express-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "jest test/*",
     "lint": "eslint src/*.js",
-    "start": "node -r esm api/server.js",
+    "start": "node -r esm api/index.js",
     "reset": "npx rimraf database.json"
   },
   "author": "",

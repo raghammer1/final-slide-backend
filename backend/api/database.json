@@ -37,6 +37,33 @@
           }
         ]
       }
+    },
+    "raghu24@g.com": {
+      "name": "raghurgh",
+      "password": "raghu222",
+      "store": {
+        "presentations": [
+          {
+            "id": "919de4af-2616-4aa2-a39d-b112b29c0d25",
+            "name": "werew",
+            "thumbnail": "",
+            "description": "werwr",
+            "slides": [
+              {
+                "elements": [],
+                "id": "ff8e75b3-681f-44a3-a827-ae9fc372d3a9",
+                "slideNumber": 1
+              },
+              {
+                "id": "e78888fb-9675-4d9d-8a5d-272865478ead",
+                "bgCol": null,
+                "elements": [],
+                "slideNumber": 2
+              }
+            ]
+          }
+        ]
+      }
     }
   }
 }

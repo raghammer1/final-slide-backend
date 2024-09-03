@@ -661,7 +661,10 @@ import {
 const app = express();
 
 // CORS Configuration
-const allowedOrigins = ['https://slides-frontend-sigma.vercel.app'];
+const allowedOrigins = [
+  'https://slides-frontend-sigma.vercel.app',
+  'http://localhost:3001',
+];
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -758,7 +761,7 @@ app.put(
   )
 );
 
-// Running Server
+// Running Servers
 app.get('/', (req, res) => res.redirect('/docs'));
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -768,11 +771,11 @@ setup();
 const configData = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'config.json'))
 );
-const port = 'BACKEND_PORT' in configData ? configData.BACKEND_PORT : 5000;
+const port = 5002;
 
-const server = app.listen(port, () => {
-  console.log(`Backend is now listening on port ${port}!`);
-  console.log(`For API docs, navigate to http://localhost:${port}`);
-});
+// const server = app.listen(port, () => {
+//   console.log(`Backend is now listening on port ${port}!`);
+//   console.log(`For API docs, navigate to http://localhost:${port}`);
+// });
 
-export default server;
+export default app;
