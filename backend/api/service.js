@@ -1,158 +1,38 @@
-// // // import fs from 'fs';
-// // // import jwt from 'jsonwebtoken';
-// // // import AsyncLock from 'async-lock';
-// // // import { InputError, AccessError } from './error';
-// // // import path from 'path';
-
-// // // const lock = new AsyncLock();
-
-// // // const JWT_SECRET = 'llamallamaduck';
-// // // const DATABASE_FILE = path.join(__dirname, 'database.json');
-
-// // // /***************************************************************
-// // //                        State Management
-// // // ***************************************************************/
-
-// // // let admins = {};
-
-// // // const sessionTimeouts = {};
-
-// // // const update = (admins) =>
-// // //   new Promise((resolve, reject) => {
-// // //     lock.acquire('saveData', () => {
-// // //       try {
-// // //         fs.writeFileSync(
-// // //           DATABASE_FILE,
-// // //           JSON.stringify(
-// // //             {
-// // //               admins,
-// // //             },
-// // //             null,
-// // //             2
-// // //           )
-// // //         );
-// // //         resolve();
-// // //       } catch {
-// // //         reject(new Error('Writing to database failed'));
-// // //       }
-// // //     });
-// // //   });
-
-// // // export const save = () => update(admins);
-// // // export const reset = () => {
-// // //   update({});
-// // //   admins = {};
-// // // };
-
-// // // export const setup = () => {
-// // //   try {
-// // //     const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
-// // //     admins = data.admins;
-// // //   } catch {
-// // //     console.log('WARNING: No database found, create a new one');
-// // //     save();
-// // //   }
-// // // };
-
-// // // // let onlyOnce = false;
-// // // // if (!onlyOnce) {
-// // // //   setup();
-// // // //   onlyOnce = true;
-// // // // }.
-
-// // // /***************************************************************
-// // //                        Helper Functions
-// // // ***************************************************************/
-
-// // // export const userLock = (callback) =>
-// // //   new Promise((resolve, reject) => {
-// // //     lock.acquire('userAuthLock', callback(resolve, reject));
-// // //   });
-
-// // // /***************************************************************
-// // //                        Auth Functions
-// // // ***************************************************************/
-
-// // // export const getEmailFromAuthorization = (authorization) => {
-// // //   try {
-// // //     const token = authorization.replace('Bearer ', '');
-// // //     const { email } = jwt.verify(token, JWT_SECRET);
-// // //     if (!(email in admins)) {
-// // //       throw new AccessError('Invalid Token');
-// // //     }
-// // //     return email;
-// // //   } catch {
-// // //     throw new AccessError('Invalid token');
-// // //   }
-// // // };
-
-// // // export const login = (email, password) =>
-// // //   userLock((resolve, reject) => {
-// // //     if (email in admins) {
-// // //       if (admins[email].password === password) {
-// // //         resolve(jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' }));
-// // //       }
-// // //     }
-// // //     reject(new InputError('Invalid username or password'));
-// // //   });
-
-// // // export const logout = (email) =>
-// // //   userLock((resolve, reject) => {
-// // //     admins[email].sessionActive = false;
-// // //     resolve();
-// // //   });
-
-// // // export const register = (email, password, name) =>
-// // //   userLock((resolve, reject) => {
-// // //     if (email in admins) {
-// // //       return reject(new InputError('Email address already registered'));
-// // //     }
-// // //     admins[email] = {
-// // //       name,
-// // //       password,
-// // //       store: {},
-// // //     };
-// // //     const token = jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' });
-// // //     resolve(token);
-// // //   });
-
-// // // /***************************************************************
-// // //                        Store Functions
-// // // ***************************************************************/
-
-// // // export const getStore = (email) =>
-// // //   userLock((resolve, reject) => {
-// // //     resolve({ store: admins[email].store });
-// // //   });
-
-// // // export const setStore = (email, store) =>
-// // //   userLock((resolve, reject) => {
-// // //     admins[email].store = store;
-// // //     resolve();
-// // //   });
-// // import fs from 'fs';
+// // import axios from 'axios';
 // // import jwt from 'jsonwebtoken';
 // // import AsyncLock from 'async-lock';
-// // import { InputError, AccessError } from './error';
-// // import path from 'path';
+// // import { InputError, AccessError } from './error.js';
 
 // // const lock = new AsyncLock();
-// // const JWT_SECRET = 'llamallamaduck';
-// // const DATABASE_FILE = path.join(__dirname, 'database.json');
+// // const JWT_SECRET = process.env.JWT_SECRET || 'llamallamaduck';
+
+// // const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+// // const BIN_ID = '66d68180ad19ca34f89f3173'; // Your Bin ID
+// // const API_KEY = '$2a$10$rdjk2HFOBVOKEbQ1d9IUqui6FITEun2x8QDT5S4ZDyS1715iptTrK'; // Your API Key
 
 // // // State Management
 // // let admins = {};
 // // const sessionTimeouts = {};
 
-// // // Function to update the database file
+// // // Function to update the JSONBin with current admin data
 // // const update = (admins) =>
 // //   new Promise((resolve, reject) => {
-// //     lock.acquire('saveData', () => {
+// //     lock.acquire('saveData', async () => {
 // //       try {
-// //         fs.writeFileSync(DATABASE_FILE, JSON.stringify({ admins }, null, 2));
+// //         await axios.put(
+// //           `${JSONBIN_BASE_URL}/${BIN_ID}`,
+// //           { admins },
+// //           {
+// //             headers: {
+// //               'Content-Type': 'application/json',
+// //               'X-Master-Key': API_KEY,
+// //             },
+// //           }
+// //         );
 // //         resolve();
-// //       } catch {
-// //         reject(new Error('Writing to database failed'));
+// //       } catch (error) {
+// //         console.error('Failed to update JSONBin:', error);
+// //         reject(new Error('Writing to JSONBin failed'));
 // //       }
 // //     });
 // //   });
@@ -164,14 +44,22 @@
 // //   admins = {};
 // // };
 
-// // // Function to setup initial data
-// // export const setup = () => {
+// // // Function to setup initial data from JSONBin.io
+// // export const setup = async () => {
 // //   try {
-// //     const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
+// //     const response = await axios.get(`${JSONBIN_BASE_URL}/${BIN_ID}/latest`, {
+// //       headers: {
+// //         'X-Master-Key': API_KEY,
+// //       },
+// //     });
+// //     const data = response.data.record;
 // //     admins = data.admins;
-// //   } catch {
-// //     console.log('WARNING: No database found, create a new one');
-// //     save();
+// //   } catch (error) {
+// //     console.log(
+// //       'WARNING: No data found in JSONBin, initializing new data',
+// //       error
+// //     );
+// //     await save();
 // //   }
 // // };
 
@@ -232,31 +120,45 @@
 // //     admins[email].store = store;
 // //     resolve();
 // //   });
-// import fs from 'fs';
+// import axios from 'axios';
 // import jwt from 'jsonwebtoken';
 // import AsyncLock from 'async-lock';
-// import { InputError, AccessError } from './error';
-// import path from 'path';
+// import { InputError, AccessError } from './error.js';
 
 // const lock = new AsyncLock();
-// const DATABASE_FILE =
-//   process.env.DATABASE_FILE_PATH || path.join('/tmp', 'database.json'); // Updated path for serverless environments
 // const JWT_SECRET = process.env.JWT_SECRET || 'llamallamaduck';
+
+// const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+// const BIN_ID = '66d68180ad19ca34f89f3173'; // Your Bin ID
+// const API_KEY = '$2a$10$rdjk2HFOBVOKEbQ1d9IUqui6FITEun2x8QDT5S4ZDyS1715iptTrK'; // Your API Key
+// console.log('JWT_SECRET:', JWT_SECRET);
+// console.log('BIN_ID:', BIN_ID);
+// console.log('API_KEY:', API_KEY);
 
 // // State Management
 // let admins = {};
+// console.log(admins);
 // const sessionTimeouts = {};
 
-// // Function to update the database file
+// // Function to update the JSONBin with current admin data
 // const update = (admins) =>
 //   new Promise((resolve, reject) => {
-//     lock.acquire('saveData', () => {
+//     lock.acquire('saveData', async () => {
 //       try {
-//         fs.writeFileSync(DATABASE_FILE, JSON.stringify({ admins }, null, 2));
+//         await axios.put(
+//           `${JSONBIN_BASE_URL}/${BIN_ID}`,
+//           { admins },
+//           {
+//             headers: {
+//               'Content-Type': 'application/json',
+//               'X-Master-Key': API_KEY,
+//             },
+//           }
+//         );
 //         resolve();
 //       } catch (error) {
-//         console.error('Failed to write to database:', error); // More descriptive error logging
-//         reject(new Error('Writing to database failed'));
+//         console.error('Failed to update JSONBin:', error);
+//         reject(new Error('Writing to JSONBin failed'));
 //       }
 //     });
 //   });
@@ -268,14 +170,23 @@
 //   admins = {};
 // };
 
-// // Function to setup initial data
-// export const setup = () => {
+// // Function to setup initial data from JSONBin.io
+// export const setup = async () => {
 //   try {
-//     const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
+//     const response = await axios.get(`${JSONBIN_BASE_URL}/${BIN_ID}/latest`, {
+//       headers: {
+//         'X-Master-Key': API_KEY,
+//       },
+//     });
+//     const data = response.data.record;
 //     admins = data.admins;
+//     console.log(admins);
 //   } catch (error) {
-//     console.log('WARNING: No database found, creating a new one', error);
-//     save();
+//     console.log(
+//       'WARNING: No data found in JSONBin, initializing new data',
+//       error
+//     );
+//     await save();
 //   }
 // };
 
@@ -293,6 +204,7 @@
 //     if (!(email in admins)) {
 //       throw new AccessError('Invalid Token');
 //     }
+//     console.log(admins);
 //     return email;
 //   } catch {
 //     throw new AccessError('Invalid token');
@@ -305,6 +217,7 @@
 //       if (admins[email].password === password) {
 //         resolve(jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' }));
 //       }
+//       console.log(admins);
 //     }
 //     reject(new InputError('Invalid username or password'));
 //   });
@@ -313,6 +226,7 @@
 //   userLock((resolve) => {
 //     admins[email].sessionActive = false;
 //     resolve();
+//     console.log(admins);
 //   });
 
 // export const register = (email, password, name) =>
@@ -323,6 +237,7 @@
 //     admins[email] = { name, password, store: {} };
 //     const token = jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' });
 //     resolve(token);
+//     console.log(admins);
 //   });
 
 // // Store Functions
@@ -336,30 +251,45 @@
 //     admins[email].store = store;
 //     resolve();
 //   });
-import fs from 'fs';
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import AsyncLock from 'async-lock';
-import { InputError, AccessError } from './error';
-import path from 'path';
+import { InputError, AccessError } from './error.js';
 
 const lock = new AsyncLock();
 const JWT_SECRET = process.env.JWT_SECRET || 'llamallamaduck';
-const DATABASE_FILE = path.join(__dirname, 'database.json'); // Reverted to standard file path
+
+const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+const BIN_ID = '66d68180ad19ca34f89f3173'; // Your Bin ID
+const API_KEY = '$2a$10$rdjk2HFOBVOKEbQ1d9IUqui6FITEun2x8QDT5S4ZDyS1715iptTrK'; // Your API Key
+console.log('JWT_SECRET:', JWT_SECRET);
+console.log('BIN_ID:', BIN_ID);
+console.log('API_KEY:', API_KEY);
 
 // State Management
 let admins = {};
+console.log(admins);
 const sessionTimeouts = {};
 
-// Function to update the database file
+// Function to update the JSONBin with current admin data
 const update = (admins) =>
   new Promise((resolve, reject) => {
-    lock.acquire('saveData', () => {
+    lock.acquire('saveData', async () => {
       try {
-        fs.writeFileSync(DATABASE_FILE, JSON.stringify({ admins }, null, 2));
+        await axios.put(
+          `${JSONBIN_BASE_URL}/${BIN_ID}`,
+          { admins },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Master-Key': API_KEY,
+            },
+          }
+        );
         resolve();
       } catch (error) {
-        console.error('Failed to write to database:', error); // More descriptive error logging
-        reject(new Error('Writing to database failed'));
+        console.error('Failed to update JSONBin:', error);
+        reject(new Error('Writing to JSONBin failed'));
       }
     });
   });
@@ -371,21 +301,36 @@ export const reset = () => {
   admins = {};
 };
 
-// Function to setup initial data
-export const setup = () => {
+// Function to setup initial data from JSONBin.io
+export const setup = async () => {
   try {
-    const data = JSON.parse(fs.readFileSync(DATABASE_FILE));
+    const response = await axios.get(`${JSONBIN_BASE_URL}/${BIN_ID}/latest`, {
+      headers: {
+        'X-Master-Key': API_KEY,
+      },
+    });
+    const data = response.data.record;
     admins = data.admins;
+    console.log(admins);
   } catch (error) {
-    console.log('WARNING: No database found, creating a new one', error);
-    save();
+    console.log(
+      'WARNING: No data found in JSONBin, initializing new data',
+      error
+    );
+    await save();
   }
 };
 
 // User lock helper function
 export const userLock = (callback) =>
   new Promise((resolve, reject) => {
-    lock.acquire('userAuthLock', callback(resolve, reject));
+    lock.acquire('userAuthLock', async () => {
+      try {
+        await callback(resolve, reject);
+      } catch (error) {
+        reject(error);
+      }
+    });
   });
 
 // Authentication Functions
@@ -396,6 +341,7 @@ export const getEmailFromAuthorization = (authorization) => {
     if (!(email in admins)) {
       throw new AccessError('Invalid Token');
     }
+    console.log(admins);
     return email;
   } catch {
     throw new AccessError('Invalid token');
@@ -403,29 +349,37 @@ export const getEmailFromAuthorization = (authorization) => {
 };
 
 export const login = (email, password) =>
-  userLock((resolve, reject) => {
+  userLock(async (resolve, reject) => {
     if (email in admins) {
       if (admins[email].password === password) {
-        resolve(jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' }));
+        const token = jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' });
+        await save(); // Save after successful login
+        resolve(token);
+        return;
       }
+      console.log(admins);
     }
     reject(new InputError('Invalid username or password'));
   });
 
 export const logout = (email) =>
-  userLock((resolve) => {
+  userLock(async (resolve) => {
     admins[email].sessionActive = false;
+    await save(); // Save after logout
     resolve();
+    console.log(admins);
   });
 
 export const register = (email, password, name) =>
-  userLock((resolve, reject) => {
+  userLock(async (resolve, reject) => {
     if (email in admins) {
       return reject(new InputError('Email address already registered'));
     }
     admins[email] = { name, password, store: {} };
+    await save(); // Save after registration
     const token = jwt.sign({ email }, JWT_SECRET, { algorithm: 'HS256' });
     resolve(token);
+    console.log(admins);
   });
 
 // Store Functions
@@ -435,7 +389,8 @@ export const getStore = (email) =>
   });
 
 export const setStore = (email, store) =>
-  userLock((resolve) => {
+  userLock(async (resolve) => {
     admins[email].store = store;
+    await save(); // Save after store update
     resolve();
   });
